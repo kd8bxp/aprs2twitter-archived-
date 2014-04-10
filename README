@@ -1,0 +1,131 @@
+APRS2Twitter version 13b
+
+Mar 30, 2014 - released to public on Apr 7, 2014:
+
+This is a back to basics release (Post to Twitter, Post to Foursquare, and update repeaters via SMS) everything else that the script use to do is gone read below:
+
+Many changes, mostly API updates.
+
+We lost supertweet api, that was a big loss.
+A couple of the Yahoo APIs changed
+another big loss is the Weather API.
+Tumblr has been disabled, it has not worked for a while now. Probably since version 10b or 10.5b 
+Since the loss of Weather API, I choose to stop using 140plus.
+
+Starting to migrate from Yahoo API to using the Foursquare API for location based names. (What this means however is that you will need to allow the script to have access to Foursquare using oAuth, you don't have to let it post on your behalf, but it will still need the access to read the foursquare API)
+Yahoo API is still being used to help find WIFI hotspots. (Yahoo has over the years changed a number of times, and is becoming a bit flakey when it works it works well, but it isn't as reliable as it use to be)
+
+There are some minor changes
+
+a APRS beacon comment can be posted to Foursquare. (seems like it works and then it didn't work as it was execpted to)
+
+New users should run setup.php on the command line (See Setup in the Notes section before running setup.php), this will walk you thou the setup process and ask question along the way.
+
+Current users should run the upgrade.php script, this script will walk you thou setting up Twitter's oAuth, and make changes to setup.ini, as well as delete files that are no longer needed. Mostly dealing with weather functions. (open your terminal/command line, goto your aprs directory, and type php upgrade.php follow the instructions)
+
+Currently used APIs:
+APRS.FI of course, much of what this script does it couldn't do without APRS.FI
+Twitter API
+TinyURL - URL Shorten
+Amateur-Radio.net - Great site to get Repeater information
+Foursquare API
+Yahoo Local Search API (Still in script, but being phased out)
+Tropo.com for the SMS gateway
+Google for hosting the downloads for the script
+
+APRS is copyright by Bob Burninga WB4APR
+
+
+NOTES:
+
+SETUP: IF you are a new user of the script you will need to setup PHP-Cli before setup.php will run. 
+
+For Debian based/Ubuntu Based linux PHP is in the repositories (if your distro has Synaptic Package Manager installed, start that and look for the following packages:)
+Otherwise use apt-get or your favorite package manager and find them, once installed you are done:
+
+php5-cli, php5-common, php5-curl, php5-json
+
+For a Windows based install, point your browser to 
+http://windows.php.net/download/
+
+And if the latest installer edition that matches your OS (PHP 5.3 looks like it is current with installer) I can't remmeber if we used Thread Safe, or Non Thread Safe when we were doing are testing a few years ago (I think it was Thread Safe, but don't hold me to that)
+
+The installer will ask a few questions, the most important are you need the CLI, make sure CURL is enabled, as well as the JSON extentions, everything else is gravy.
+
+
+FOR All other OSes (Linux, MacOS, ect)
+Most modern versions of linunx have php5 in the repositories, use your favorite package manager to the latest version for you distro. Make sure it's the CLI version, and that you have CURL and JSON extentions. See the above for package names with Ubuntu.
+MacOS binaries can be found here:
+http://us1.php.net/downloads.php
+
+As I don't have access to a Mac you are kind of on your own, sorry Mac guys - But again, the important part that is needed for this to work is:
+CLI version, CURL and JSON extentions enabled or installed. 
+
+Once PHP is installed, unzip the aprs2twitterXX.zip file (all modern OSes have a unzipper built in), into it's own directory. The Directory needs to have read/write access
+Which really is only important if you are useing a Linux Based or Mac OS  OS, but it's very important that the directory have read and write access for your user account.
+Not an issue for Windows.
+Mine: 
+/home/lfmiller/aprs/
+
+IF I was running windows:
+c:\aprs\
+
+MacOS probably very simular to Linux.
+
+Open your terminal/command line interface (Windows is CMD)
+and goto the directory you just created.
+Type 
+php setup.php
+And follow the directions/answer the questions it asks. Once done, you need to setup your task schudeller to run the script at various times:
+I can only speak to a linux based install on how to do this:
+While still in the terminal type
+sudo crontab -e
+if you don't have a cron a new file will be created, if you do, you'll need to add the following line:
+
+*/15 * * * * php /home/lfmiller/aprs/aprs.php
+
+of course the directory will the one where you installed the scripts.
+The */15 will run the script once every 15 minutes, this seems to work well for me and the way I drive, it will post up to 4 times a hours based on how you drive.
+It executes every 15 minutes starting at the 15 minute mark: IE: xx:15 xx:30 xx:45 xx:00 every time at the same time and on the same day. 
+If you need or want more information about cron - google the manual, cron is a very powerful task schudeller.
+
+I believe N4TRQ (N4TRQJEDI on twitter) found a cron installer for windows a few years back.
+
+MacOS probably has something like cron since MacOS is based off BSD, but again since I don't have access to a Mac I am not going to be much help.
+
+SETUP is done. 
+If you want to do a manual run of the script (at any time), but probably a good idea the 1st time out
+
+type:
+php aprs.php
+
+You will probably see a couple of warning about some files that are missing, these should be created the 1st time around, one warning you may see is below and a fix for tha warning is also below.
+
+That's all there is too it. Setup is complete.
+
+IF you see a warning that looks something like this (Note the warning says date())
+
+PHP Warning:  date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected the timezone 'UTC' for now, but please set date.timezone to select your timezone. in /home/lfmiller/Desktop/spotterapi.php on line 80
+
+You will need to uncomment this line in the aprs.php it's the very 1st line past <?php
+
+date_default_timezone_set('America/New_York');
+
+Goto http://www.php.net/manual/en/timezones.america.php to find your correct/closest time zone (Mine is EST/EDT my closest time is 'America/New York' as they are in my same timezone) If you are not in America you will see a list of other countrys on the left hand side of the screen.
+This seems to only be a issue on linux based systems, at least from what I've read on the internet, correct me if that information isn't right.
+
+IF you are having problems with Foursquare oAuth - I made a type of fix for it, you'll need to download gettoken.zip from the google code website.
+http://code.google.com/p/aprs2twitter
+
+Copy the "code" from the url that Foursquare sent you too, paste the code into the gettoken.php script. You'll probably want to open a new terminal/command window, and go to the directory where you downloaded the file.
+type php gettoken.php and it should now show you the token you'll need to authorize Foursquare.
+
+NOT Clear? Yeah, I know - me too: made a quick video showing me doing all the copy and pasting.
+http://youtu.be/FRWL7zESNTw
+
+Speaking of videos - Here is a quick video on how to setup Twitter for use with the current version of the script.
+http://youtu.be/vqZxWht11R0
+
+
+
+
